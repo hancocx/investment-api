@@ -1,23 +1,37 @@
 const Instrument = require('../models/Instrument');
 
-// Cálculo del GAT Nominal y GAT Real
-const calculateGAT = (interesBruto) => {
-  const inflationRate = 0.038;
-  const GATNominal = interesBruto - inflationRate;
-  const GATReal = GATNominal - inflationRate;
-  return { GATNominal, GATReal };
-};
-
 // Crear un instrumento
 exports.createInstrument = async (req, res) => {
   try {
-    const { interesBruto } = req.body;
-    const { GATNominal, GATReal } = calculateGAT(interesBruto);
-
-    const instrument = new Instrument({
-      ...req.body,
+    const {
+      plataforma,
+      institucion,
+      tipoInversion,
+      programa,
+      montoMinimo,
+      montoMaximo,
+      plazo,
+      interesBruto,
       GATNominal,
       GATReal,
+      liquidez,
+      riesgo,
+    } = req.body;
+
+    // Crear el instrumento con los valores enviados desde el frontend
+    const instrument = new Instrument({
+      plataforma,
+      institucion,
+      tipoInversion,
+      programa,
+      montoMinimo,
+      montoMaximo,
+      plazo,
+      interesBruto,
+      GATNominal,
+      GATReal,
+      liquidez,
+      riesgo,
     });
 
     const savedInstrument = await instrument.save();
@@ -29,13 +43,10 @@ exports.createInstrument = async (req, res) => {
 };
 
 // Obtener todos los instrumentos
-exports.getInstruments = async (req, res) => {
-  try {
-    const instruments = await Instrument.find();
-    res.status(200).json(instruments);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+export const fetchInstruments = async () => {
+  const response = await fetch('http://localhost:5000/api/instruments'); // Ajusta la URL según tu API
+  const data = await response.json();
+  return data;
 };
 
 // Actualizar un instrumento
