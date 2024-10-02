@@ -23,6 +23,7 @@ exports.createInstrument = async (req, res) => {
     const savedInstrument = await instrument.save();
     res.status(201).json(savedInstrument);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
