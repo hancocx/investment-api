@@ -7,5 +7,7 @@ const {
 
 router.post('/', createInstrument);
 router.get('/', getInstruments);
+router.put('/:id', updateInstrument);
+router.delete('/:id', deleteInstrument);
 
 module.exports = router;
