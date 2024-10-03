@@ -1,5 +1,15 @@
 const Instrument = require('../models/Instrument');
 
+// Obtener todos los instrumentos
+exports.getInstruments = async (req, res) => {
+  try {
+    const instruments = await Instrument.find();
+    res.status(200).json(instruments);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener instrumentos' });
+  }
+};
+
 // Crear un instrumento
 exports.createInstrument = async (req, res) => {
   try {
@@ -12,14 +22,15 @@ exports.createInstrument = async (req, res) => {
       montoMaximo,
       plazo,
       interesBruto,
-      GATNominal,
-      GATReal,
       liquidez,
       riesgo,
     } = req.body;
 
+    // Calculamos el GAT aquí en el backend
+    const { GATNominal, GATReal } = calculateGAT(interesBruto);
+
     // Crear el instrumento con los valores enviados desde el frontend
-    const instrument = new Instrument({
+    const newInstrument = new Instrument({
       plataforma,
       institucion,
       tipoInversion,
@@ -28,32 +39,53 @@ exports.createInstrument = async (req, res) => {
       montoMaximo,
       plazo,
       interesBruto,
-      GATNominal,
-      GATReal,
+      GATNominal, // Valor calculado
+      GATReal, // Valor calculado
       liquidez,
       riesgo,
     });
 
-    const savedInstrument = await instrument.save();
+    // Guardamos el instrumento en la base de datos
+    const savedInstrument = await newInstrument.save();
+
+    // Se envia el instrumento creado con los cálculos al frontend
     res.status(201).json(savedInstrument);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error al crear instrumento' });
   }
 };
 
-// Obtener todos los instrumentos
-export const fetchInstruments = async () => {
-  const response = await fetch('http://localhost:5000/api/instruments'); // Ajusta la URL según tu API
-  const data = await response.json();
-  return data;
+// Cálculo del GAT Nominal y GAT Real
+const calculateGAT = (interesBruto) => {
+  const inflationRate = 0.038; // Inflación esperada (3.8%)
+  const diasCapitalizacion = 360; // Usamos 360 días para la capitalización
+
+  const interesBrutoDecimal = interesBruto / 100;
+  const GATNominal =
+    Math.pow(1 + interesBrutoDecimal / diasCapitalizacion, diasCapitalizacion) -
+    1;
+  const GATReal = (1 + GATNominal) / (1 + inflationRate) - 1;
+
+  return { GATNominal: GATNominal * 100, GATReal: GATReal * 100 }; // Convertimos de vuelta a porcentaje
 };
 
 // Actualizar un instrumento
 exports.updateInstrument = async (req, res) => {
   try {
     const { id } = req.params;
-    const { interesBruto } = req.body;
+    const {
+      plataforma,
+      institucion,
+      tipoInversion,
+      programa,
+      montoMinimo,
+      montoMaximo,
+      plazo,
+      interesBruto,
+      liquidez,
+      riesgo,
+    } = req.body;
 
     // Calculamos GAT Nominal y GAT Real nuevamente si cambia el interés bruto
     let GATNominal, GATReal;
@@ -67,8 +99,6 @@ exports.updateInstrument = async (req, res) => {
       id,
       {
         ...req.body,
-        ...(GATNominal !== undefined && { GATNominal }),
-        ...(GATReal !== undefined && { GATReal }),
         fechaActualizacion: Date.now(),
       },
       { new: true }
