@@ -1,12 +1,18 @@
 const express = require('express');
 const router = express.Router();
-
 const {
-  getAllPlatforms,
+  getPlatforms,
+  getPlatformById,
   createPlatform,
-} = require('../controllers/PlatformController');
+  updatePlatform,
+  deletePlatform,
+} = require('../controllers/platformController');
 
-router.get('/platforms', getAllPlatforms);
-router.post('/platforms/create', createPlatform);
+// Rutas para CRUD de plataformas
+router.get('/platforms', getPlatforms);
+router.get('/platform/:id', getPlatformById);
+router.post('/platform/create', createPlatform);
+/*router.put('/platform/:id', updatePlatform);
+router.delete('/platform/:id', deletePlatform);*/
 
 module.exports = router;

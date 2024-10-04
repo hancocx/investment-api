@@ -8,12 +8,61 @@
 const mongoose = require('mongoose');
 
 // Modelo para Plataforma/Institución
-const PlatformSchema = new mongoose.Schema({
-  plataforma: { type: String, required: true },
-  institucion: { type: String, required: true },
-  tipoInversion: { type: String, required: true },
-  liquidez: { type: String, required: true },
-  riesgo: { type: String, required: true },
-});
+const PlatformSchema = new mongoose.Schema(
+  {
+    nombre: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    tipoInstitucion: {
+      type: String,
+      required: true,
+      enum: [
+        'Banco Digital',
+        'Banco Tradicional',
+        'Crowdlending',
+        'Crowdfunding Inmobiliario',
+        'Crowdfunding Préstamos P2P',
+        'Cuenta Digital',
+        'Factoraje a Pymes',
+        'Inversión en Franquicias',
+        'Inversión en Paneles Solares',
+        'Inversión en Startups',
+        'SOFIPO',
+        'SOFIPO / Crowdlending',
+      ],
+    },
+    tipoInversion: {
+      type: String,
+      required: true,
+      enum: ['Renta Fija', 'Renta Variable'],
+    },
+    pais: {
+      type: String,
+      default: 'México', // O cualquier otro país por defecto
+    },
+    description: {
+      type: String,
+    },
+    liquidez: {
+      type: String,
+      required: true,
+      enum: ['Alta', 'Media', 'Baja'],
+    },
+    riesgo: {
+      type: String,
+      required: true,
+      enum: ['Alto', 'Medio', 'Bajo'],
+    },
+    logo: {
+      type: String, // URL o path al logo de la plataforma
+    },
+  },
+  {
+    timestamps: true, // Para gestionar `createdAt` y `updatedAt`
+  }
+);
 
 module.exports = mongoose.model('Platform', PlatformSchema);

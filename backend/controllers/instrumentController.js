@@ -25,45 +25,13 @@ exports.getInstrumentById = async (req, res) => {
   }
 };
 
-// Crear un instrumento
+// Crear un nuevo instrumento
 exports.createInstrument = async (req, res) => {
-  try {
-    const { plataformaId, plazo, interesBruto, liquidez, riesgo } = req.body;
+  const { plataformaId, plazo, interesBruto } = req.body;
 
-    // Calculamos el GAT aquí en el backend
-    const { GATNominal, GATReal } = calculateGAT(interesBruto);
-
-    // Crear el instrumento con los valores enviados desde el frontend
-    const newInstrument = new Instrument({
-      plataforma,
-      institucion,
-      tipoInversion,
-      programa,
-      montoMinimo,
-      montoMaximo,
-      plazo,
-      interesBruto,
-      GATNominal, // Valor calculado
-      GATReal, // Valor calculado
-      liquidez,
-      riesgo,
-    });
-
-    // Guardamos el instrumento en la base de datos
-    const savedInstrument = await newInstrument.save();
-
-    // Se envia el instrumento creado con los cálculos al frontend
-    res.status(201).json(savedInstrument);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al crear instrumento' });
-  }
-};
-
-// Cálculo del GAT Nominal y GAT Real
-const calculateGAT = (interesBruto) => {
-  const inflationRate = 0.038; // Inflación esperada (3.8%)
-  const diasCapitalizacion = 360; // Usamos 360 días para la capitalización
+  // Calcular GAT Nominal y GAT Real
+  const diasCapitalizacion = 360;
+  const inflationRate = 0.038;
 
   const interesBrutoDecimal = interesBruto / 100;
   const GATNominal =
@@ -71,7 +39,20 @@ const calculateGAT = (interesBruto) => {
     1;
   const GATReal = (1 + GATNominal) / (1 + inflationRate) - 1;
 
-  return { GATNominal: GATNominal * 100, GATReal: GATReal * 100 }; // Convertimos de vuelta a porcentaje
+  try {
+    const newInstrument = new Instrument({
+      plataformaId,
+      plazo,
+      interesBruto,
+      GATNominal: (GATNominal * 100).toFixed(2),
+      GATReal: (GATReal * 100).toFixed(2),
+    });
+
+    await newInstrument.save();
+    res.status(201).json(newInstrument);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al crear instrumento', error });
+  }
 };
 
 // Actualizar un instrumento
