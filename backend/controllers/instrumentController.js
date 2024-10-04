@@ -3,28 +3,32 @@ const Instrument = require('../models/Instrument');
 // Obtener todos los instrumentos
 exports.getInstruments = async (req, res) => {
   try {
-    const instruments = await Instrument.find();
+    const instruments = await Instrument.find().populate('plataformaId');
     res.status(200).json(instruments);
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener instrumentos' });
+    res.status(500).json({ message: 'Error al obtener instrumentos', error });
+  }
+};
+
+// Obtener un instrumento por ID
+exports.getInstrumentById = async (req, res) => {
+  try {
+    const instrument = await Instrument.findById(req.params.id).populate(
+      'plataformaId'
+    );
+    if (!instrument) {
+      return res.status(404).json({ message: 'Instrumento no encontrado' });
+    }
+    res.status(200).json(instrument);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el instrumento', error });
   }
 };
 
 // Crear un instrumento
 exports.createInstrument = async (req, res) => {
   try {
-    const {
-      plataforma,
-      institucion,
-      tipoInversion,
-      programa,
-      montoMinimo,
-      montoMaximo,
-      plazo,
-      interesBruto,
-      liquidez,
-      riesgo,
-    } = req.body;
+    const { plataformaId, plazo, interesBruto, liquidez, riesgo } = req.body;
 
     // Calculamos el GAT aquí en el backend
     const { GATNominal, GATReal } = calculateGAT(interesBruto);

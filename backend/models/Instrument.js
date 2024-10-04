@@ -1,22 +1,20 @@
 const mongoose = require('mongoose');
 
+// Model for Instrument (with reference to Platform)
 const InstrumentSchema = new mongoose.Schema(
   {
-    plataforma: String,
-    institucion: String,
-    tipoInversion: String,
-    programa: String,
-    montoMinimo: Number,
-    montoMaximo: Number,
-    plazo: String,
-    interesBruto: Number,
-    GATNominal: Number,
-    GATReal: Number,
-    liquidez: String,
-    riesgo: String,
+    plataformaId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Platform',
+      required: true,
+    },
+    plazo: { type: String, required: true },
+    interesBruto: { type: Number, required: true },
+    GATNominal: { type: Number },
+    GATReal: { type: Number },
   },
   {
-    timestamps: { createdAt: 'fechaAlta', updatedAt: 'fechaActualizacion' },
+    timestamps: true, // Automatically adds `createdAt` and `updatedAt`
   }
 );
 
