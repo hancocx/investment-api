@@ -11,7 +11,7 @@ const {
 // Rutas
 router.get('/instruments', getInstruments);
 router.post('/instrument/create', createInstrument);
-router.put('/instrument/:id', updateInstrument);
-router.delete('/instrument/:id', deleteInstrument);
+router.put('/platforms/:id/instruments/:instrumentId', updateInstrument);
+router.delete('/platforms/:id/instruments/:instrumentId', deleteInstrument);
 
 module.exports = router;

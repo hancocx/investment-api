@@ -14,7 +14,6 @@ const PlatformSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      trim: true,
     },
     tipoInstitucion: {
       type: String,
@@ -43,9 +42,6 @@ const PlatformSchema = new mongoose.Schema(
       type: String,
       default: 'México', // O cualquier otro país por defecto
     },
-    description: {
-      type: String,
-    },
     liquidez: {
       type: String,
       required: true,
@@ -56,9 +52,20 @@ const PlatformSchema = new mongoose.Schema(
       required: true,
       enum: ['Alto', 'Medio', 'Bajo'],
     },
+    description: {
+      type: String,
+    },
     logo: {
       type: String, // URL o path al logo de la plataforma
     },
+    instruments: [
+      {
+        plazo: String,
+        interesBruto: Number,
+        GATNominal: Number,
+        GATReal: Number,
+      },
+    ],
   },
   {
     timestamps: true, // Para gestionar `createdAt` y `updatedAt`
